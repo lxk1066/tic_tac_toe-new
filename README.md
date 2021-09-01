@@ -1,6 +1,9 @@
 # tic_tac_toe-new
+
 language：python；
+
 lines：500；
+
 tips：
 基于旧版的程序修改了部分代码；
 *加入了class用以创建玩家对象，所有游戏的动作都会通过class方法来操作；
