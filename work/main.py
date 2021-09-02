@@ -339,6 +339,7 @@ while True:
 
                 # 隐藏彩蛋，显示一句话
                 if 650 >= mouse[0] >= 600 >= mouse[1] >= 400 and event.button == 1:
+                    n = 3    # 更改控制变量，防止paint_game_records()函数执行
                     screen.fill([255, 255, 255])
                     screen.blit(text7, (180, 200))
                     screen.blit(text8, (150, 250))
