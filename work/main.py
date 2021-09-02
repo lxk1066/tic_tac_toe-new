@@ -345,8 +345,8 @@ while True:
                     screen.blit(text8, (150, 250))
                 pygame.display.update()
 
-                if (1 <= x <= 199) and (1 <= y <= 199) and board[0][0] == -1:   # 第一格
-                    if n == 0:
+                if n == 0:
+                    if (1 <= x <= 199) and (1 <= y <= 199) and board[0][0] == -1:   # 第一格
                         if event.button == 1 and judge_sequence() == 1:
                             paint_tick_one()
                             board[0][0] = 1
@@ -359,8 +359,7 @@ while True:
                             pygame.display.update()
                             play_o.update()
                             play_x.update()
-                elif (201 <= x <= 399) and (1 <= y <= 199) and board[0][1] == -1:   # 第二格
-                    if n == 0:
+                    elif (201 <= x <= 399) and (1 <= y <= 199) and board[0][1] == -1:   # 第二格
                         if event.button == 1 and judge_sequence() == 1:
                             paint_tick_two()
                             board[0][1] = 1
@@ -373,8 +372,7 @@ while True:
                             pygame.display.update()
                             play_o.update()
                             play_x.update()
-                elif (401 <= x <= 599) and (1 <= y <= 199) and board[0][2] == -1:   # 第三格
-                    if n == 0:
+                    elif (401 <= x <= 599) and (1 <= y <= 199) and board[0][2] == -1:   # 第三格
                         if event.button == 1 and judge_sequence() == 1:
                             paint_tick_three()
                             board[0][2] = 1
@@ -387,8 +385,7 @@ while True:
                             pygame.display.update()
                             play_o.update()
                             play_x.update()
-                elif (1 <= x <= 199) and (201 <= y <= 399) and board[1][0] == -1:   # 第四格
-                    if n == 0:
+                    elif (1 <= x <= 199) and (201 <= y <= 399) and board[1][0] == -1:   # 第四格
                         if event.button == 1 and judge_sequence() == 1:
                             paint_tick_four()
                             board[1][0] = 1
@@ -401,8 +398,7 @@ while True:
                             pygame.display.update()
                             play_o.update()
                             play_x.update()
-                elif (201 <= x <= 399) and (201 <= y <= 399) and board[1][1] == -1:   # 第五格
-                    if n == 0:
+                    elif (201 <= x <= 399) and (201 <= y <= 399) and board[1][1] == -1:   # 第五格
                         if event.button == 1 and judge_sequence() == 1:
                             paint_tick_five()
                             board[1][1] = 1
@@ -415,8 +411,7 @@ while True:
                             pygame.display.update()
                             play_o.update()
                             play_x.update()
-                elif (401 <= x <= 599) and (201 <= y <= 399) and board[1][2] == -1:   # 第六格
-                    if n == 0:
+                    elif (401 <= x <= 599) and (201 <= y <= 399) and board[1][2] == -1:   # 第六格
                         if event.button == 1 and judge_sequence() == 1:
                             paint_tick_six()
                             board[1][2] = 1
@@ -429,8 +424,7 @@ while True:
                             pygame.display.update()
                             play_o.update()
                             play_x.update()
-                elif (1 <= x <= 199) and (401 <= y <= 599) and board[2][0] == -1:   # 第七格
-                    if n == 0:
+                    elif (1 <= x <= 199) and (401 <= y <= 599) and board[2][0] == -1:   # 第七格
                         if event.button == 1 and judge_sequence() == 1:
                             paint_tick_seven()
                             board[2][0] = 1
@@ -443,8 +437,7 @@ while True:
                             pygame.display.update()
                             play_o.update()
                             play_x.update()
-                elif (201 <= x <= 399) and (401 <= y <= 599) and board[2][1] == -1:   # 第八格
-                    if n == 0:
+                    elif (201 <= x <= 399) and (401 <= y <= 599) and board[2][1] == -1:   # 第八格
                         if event.button == 1 and judge_sequence() == 1:
                             paint_tick_eight()
                             board[2][1] = 1
@@ -457,8 +450,7 @@ while True:
                             pygame.display.update()
                             play_o.update()
                             play_x.update()
-                elif (401 <= x <= 599) and (401 <= y <= 599) and board[2][2] == -1:   # 第九格
-                    if n == 0:
+                    elif (401 <= x <= 599) and (401 <= y <= 599) and board[2][2] == -1:   # 第九格
                         if event.button == 1 and judge_sequence() == 1:
                             paint_tick_nine()
                             board[2][2] = 1     # 写入数组
