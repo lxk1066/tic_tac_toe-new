@@ -2,7 +2,7 @@
 
 language：python；
 
-lines：500；
+lines：400；
 
 tips：
 
