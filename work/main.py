@@ -27,7 +27,7 @@ def judge_dogfall():
     return True
 
 
-# 判断谁是winner谁是loser
+# 判断谁是winner
 def judge_winner():
     if play_o.get_status():
         return "player_o"
@@ -35,6 +35,7 @@ def judge_winner():
         return "player_x"
 
 
+# 判断谁是loser
 def judge_loser():
     if play_o.get_status() is None:
         return None
@@ -62,19 +63,113 @@ def save_result():
             f.write("\n")
         f.write("\n")
 
+
+# 根据鼠标所在位置坐标返回第几个格子
+def position(mouse_post):
+    post_x, post_y = mouse_post[0], mouse_post[1]
+    if 0 < post_x < 200 and 0 < post_y < 200:
+        return 1
+    elif 200 < post_x < 400 and 0 < post_y < 200:
+        return 2
+    elif 400 < post_x < 600 and 0 < post_y < 200:
+        return 3
+    elif 0 < post_x <= 200 and 200 < post_y <= 400:
+        return 4
+    elif 200 < post_x < 400 and 200 < post_y <= 400:
+        return 5
+    elif 400 < post_x < 600 and 200 < post_y < 400:
+        return 6
+    elif 0 < post_x < 200 and 400 < post_y < 600:
+        return 7
+    elif 200 < post_x < 400 and 400 < post_y < 600:
+        return 8
+    elif 400 < post_x < 600 and 400 < post_y < 600:
+        return 9
+
+
+# 根据position()返回值计算出在二维数组board中的对应位置并判断是否可以下(棋)子
+def judge_board(mouse_now, *args):
+    position_num = position(mouse_now)
+    a = int((position_num - 1) / 3)
+    b = (position_num - 1) % 3
+    if len(args) != 0:
+        board[a][b] = args[0]
+    return True if board[a][b] == -1 else False
+
+
+# 返回所在格子的四个顶点坐标，顺序为上、右、下、左
+def getx_gety(mouse_post):
+    posts = []
+    numbers = {
+        1: [0, 0],
+        2: [200, 0],
+        3: [400, 0],
+        4: [0, 200],
+        5: [200, 200],
+        6: [400, 200],
+        7: [0, 400],
+        8: [200, 400],
+        9: [400, 400]
+    }
+
+    num = position(mouse_post)
+
+    port = numbers.get(num, None)
+    posts.append(port)
+    posts.append([port[0]+200, port[1]])
+    posts.append([port[0]+200, port[1]+200])
+    posts.append([port[0], port[1]+200])
+
+    return posts
+
+
+# 算出画叉的四个坐标,参数posts_fork来自getx_gety()函数的返回值
+def fork_posts(posts_fork):
+    fork_x = [posts_fork[0][0] + 60, posts_fork[0][1] + 60]
+    fork_y = [posts_fork[2][0] - 60, posts_fork[2][1] - 60]
+    fork_j = [posts_fork[1][0] - 60, posts_fork[1][1] + 60]
+    fork_k = [posts_fork[3][0] + 60, posts_fork[3][1] - 60]
+    return [fork_x, fork_y, fork_j, fork_k]
+
+
+# 算出画圆的圆心坐标，参数post_circle来自getx_gety()函数的返回值
+# 在正方形内画圆，圆心坐标计算公式为((x1+x2+x3+x4)/4,(y1+y2+y3+y4)/4)
+def circle_post(post_circle):
+    post_x, post_y = 0, 0
+    for q in post_circle:
+        post_x += q[0]
+        post_y += q[1]
+    pos = [post_x / 4, post_y / 4]
+    return pos
+
+
 # ----------------------------------------逻辑部分------------------------------------------------
-
-
-while True:
-    # 判断结果
-    def compute():
-        i = 0
-        result = -1
-        # 检查行
-        while (result == -1) and (i < size):
-            num_of_x, num_of_o = 0, 0
-            j = 0
-            while j < size:
+# 判断结果
+def compute():
+    i = 0
+    result = -1
+    # 检查行
+    while (result == -1) and (i < size):
+        num_of_x, num_of_o = 0, 0
+        j = 0
+        while j < size:
+            if board[i][j] == 1:
+                num_of_x += 1
+            elif board[i][j] == 0:
+                num_of_o += 1
+            if num_of_o == size:
+                result = 0
+            elif num_of_x == size:
+                result = 1
+            j += 1
+        i += 1
+    # 检查列
+    if result == -1:
+        i, j = 0, 0
+        while j < size and result == -1:
+            num_of_x = num_of_o = 0
+            i = 0
+            while i < size:
                 if board[i][j] == 1:
                     num_of_x += 1
                 elif board[i][j] == 0:
@@ -83,179 +178,107 @@ while True:
                     result = 0
                 elif num_of_x == size:
                     result = 1
-                j += 1
+                i += 1
+            j += 1
+    # 检查正对角线
+    if result == -1:
+        num_of_o = num_of_x = 0
+        i, j = 0, 0
+        while i < size:
+            if board[i][i] == 1:
+                num_of_x += 1
+            elif board[i][i] == 0:
+                num_of_o += 1
+            if num_of_o == size:
+                result = 0
+            elif num_of_x == size:
+                result = 1
             i += 1
-        # 检查列
-        if result == -1:
-            i, j = 0, 0
-            while j < size and result == -1:
-                num_of_x = num_of_o = 0
-                i = 0
-                while i < size:
-                    if board[i][j] == 1:
-                        num_of_x += 1
-                    elif board[i][j] == 0:
-                        num_of_o += 1
-                    if num_of_o == size:
-                        result = 0
-                    elif num_of_x == size:
-                        result = 1
-                    i += 1
-                j += 1
-        # 检查正对角线
-        if result == -1:
-            num_of_o = num_of_x = 0
-            i, j = 0, 0
-            while i < size:
-                if board[i][i] == 1:
-                    num_of_x += 1
-                elif board[i][i] == 0:
-                    num_of_o += 1
-                if num_of_o == size:
-                    result = 0
-                elif num_of_x == size:
-                    result = 1
-                i += 1
-        # 检查斜对角线
-        if result == -1:
-            num_of_o = num_of_x = 0
-            i, j = 0, 0
-            while i < size:
-                if board[i][size-i-1] == 1:
-                    num_of_x += 1
-                elif board[i][size-i-1] == 0:
-                    num_of_o += 1
-                if num_of_o == size:
-                    result = 0
-                elif num_of_x == size:
-                    result = 1
-                i += 1
-        return result
+    # 检查斜对角线
+    if result == -1:
+        num_of_o = num_of_x = 0
+        i, j = 0, 0
+        while i < size:
+            if board[i][size-i-1] == 1:
+                num_of_x += 1
+            elif board[i][size-i-1] == 0:
+                num_of_o += 1
+            if num_of_o == size:
+                result = 0
+            elif num_of_x == size:
+                result = 1
+            i += 1
+    return result
+
 
 # ---------------------------------------GUI图形部分------------------------------------------
-    # 画图
-    def paint_tick_one():
-        pygame.draw.circle(screen, black, [100, 100], 50, 3)
+# 画图
+def paint_circle(mouse_now):
+    if position(mouse_now) % 2 == 0:
+        color = white
+    else:
+        color = black
+    post = getx_gety(mouse_now)
+    pygame.draw.circle(screen, color, circle_post(post), 50, 3)
 
 
-    def paint_fork_one():
-        pygame.draw.line(screen, black, [60, 60], [140, 140], 3)
-        pygame.draw.line(screen, black, [140, 60], [60, 140], 3)
+def paint_fork(mouse_now):
+    if position(mouse_now) % 2 == 0:
+        color = white
+    else:
+        color = black
+    post = fork_posts(getx_gety(mouse_now))
+    pygame.draw.line(screen, color, post[0], post[1], 3)
+    pygame.draw.line(screen, color, post[2], post[3], 3)
 
 
-    def paint_tick_two():
-        pygame.draw.circle(screen, white, [300, 100], 50, 3)
+# 提示先后手的那两个圆
+def paint_circle_first():
+    pygame.draw.circle(screen, black, [625, 60], 20, 0)
 
 
-    def paint_fork_two():
-        pygame.draw.line(screen, white, [260, 60], [340, 140], 3)
-        pygame.draw.line(screen, white, [340, 60], [260, 140], 3)
+def paint_circle_next():
+    pygame.draw.circle(screen, black, [625, 145], 20, 0)
 
 
-    def paint_tick_three():
-        pygame.draw.circle(screen, black, [500, 100], 50, 3)
+def paint_game_records():
+    pygame.draw.rect(screen, my_blue, (600, 0, 50, 200), 0)
+    screen.blit(text9, (610, 10))
+    screen.blit(text10, (610, 55))
+    screen.blit(text11, (610, 100))
+    screen.blit(text12, (610, 150))
 
 
-    def paint_fork_three():
-        pygame.draw.line(screen, black, [460, 60], [540, 140], 3)
-        pygame.draw.line(screen, black, [540, 60], [460, 140], 3)
+# 刷新背景
+def background():
+    screen.fill([199, 193, 245])
+    pygame.draw.rect(screen, white, [0, 0, 200, 200], 0)
+    pygame.draw.rect(screen, black, [200, 0, 200, 200], 0)
+    pygame.draw.rect(screen, white, [400, 0, 200, 200], 0)
+    pygame.draw.rect(screen, black, [0, 200, 200, 200], 0)
+    pygame.draw.rect(screen, white, [200, 200, 200, 200], 0)
+    pygame.draw.rect(screen, black, [400, 200, 200, 200], 0)
+    pygame.draw.rect(screen, white, [0, 400, 200, 200], 0)
+    pygame.draw.rect(screen, black, [200, 400, 200, 200], 0)
+    pygame.draw.rect(screen, white, [400, 400, 200, 200], 0)
+    pygame.draw.lines(screen, lightgrey, True, [(600, 0), (650, 0), (650, 200), (600, 200)], 3)
+    pygame.draw.lines(screen, lightgrey, True, [(600, 200), (650, 200), (650, 400), (600, 400)], 3)
+    pygame.draw.lines(screen, lightgrey, True, [(600, 400), (650, 400), (650, 600), (600, 600)], 3)
+    pygame.draw.circle(screen, black, [625, 145], 20, 3)
+    pygame.draw.circle(screen, black, [625, 60], 20, 3)
+    screen.blit(text1, (610, 225))
+    screen.blit(text2, (610, 262))
+    screen.blit(text3, (610, 299))
+    screen.blit(text4, (609, 336))
+    screen.blit(text5, (610, 3))
+    screen.blit(text6, (610, 85))
+    pygame.display.update()
 
 
-    def paint_tick_four():
-        pygame.draw.circle(screen, white, [100, 300], 50, 3)
-
-
-    def paint_fork_four():
-        pygame.draw.line(screen, white, [60, 260], [140, 340], 3)
-        pygame.draw.line(screen, white, [140, 260], [60, 340], 3)
-
-
-    def paint_tick_five():
-        pygame.draw.circle(screen, black, [300, 300], 50, 3)
-
-
-    def paint_fork_five():
-        pygame.draw.line(screen, black, [260, 260], [340, 340], 3)
-        pygame.draw.line(screen, black, [340, 260], [260, 340], 3)
-
-    def paint_tick_six():
-        pygame.draw.circle(screen, white, [500, 300], 50, 3)
-
-
-    def paint_fork_six():
-        pygame.draw.line(screen, white, [460, 260], [540, 340], 3)
-        pygame.draw.line(screen, white, [540, 260], [460, 340], 3)
-
-
-    def paint_tick_seven():
-        pygame.draw.circle(screen, black, [100, 500], 50, 3)
-
-
-    def paint_fork_seven():
-        pygame.draw.line(screen, black, [60, 460], [140, 540], 3)
-        pygame.draw.line(screen, black, [140, 460], [60, 540], 3)
-
-
-    def paint_tick_eight():
-        pygame.draw.circle(screen, white, [300, 500], 50, 3)
-
-
-    def paint_fork_eight():
-        pygame.draw.line(screen, white, [260, 460], [340, 540], 3)
-        pygame.draw.line(screen, white, [340, 460], [260, 540], 3)
-
-
-    def paint_tick_nine():
-        pygame.draw.circle(screen, black, [500, 500], 50, 3)
-
-
-    def paint_fork_nine():
-        pygame.draw.line(screen, black, [460, 460], [540, 540], 3)
-        pygame.draw.line(screen, black, [540, 460], [460, 540], 3)
-
-    # 提示先后手的那两个圈
-    def paint_circle_first():
-        pygame.draw.circle(screen, black, [625, 60], 20, 0)
-
-    def paint_circle_next():
-        pygame.draw.circle(screen, black, [625, 145], 20, 0)
-
-    def paint_game_records():
-        pygame.draw.rect(screen, my_blue, (600, 0, 50, 200), 0)
-        screen.blit(text9, (610, 10))
-        screen.blit(text10, (610, 55))
-        screen.blit(text11, (610, 100))
-        screen.blit(text12, (610, 150))
-
-    # 刷新背景
-    def background():
-        screen.fill([199, 193, 245])
-        pygame.draw.rect(screen, white, [0, 0, 200, 200], 0)
-        pygame.draw.rect(screen, black, [200, 0, 200, 200], 0)
-        pygame.draw.rect(screen, white, [400, 0, 200, 200], 0)
-        pygame.draw.rect(screen, black, [0, 200, 200, 200], 0)
-        pygame.draw.rect(screen, white, [200, 200, 200, 200], 0)
-        pygame.draw.rect(screen, black, [400, 200, 200, 200], 0)
-        pygame.draw.rect(screen, white, [0, 400, 200, 200], 0)
-        pygame.draw.rect(screen, black, [200, 400, 200, 200], 0)
-        pygame.draw.rect(screen, white, [400, 400, 200, 200], 0)
-        pygame.draw.lines(screen, lightgrey, True, [(600, 0), (650, 0), (650, 200), (600, 200)], 3)
-        pygame.draw.lines(screen, lightgrey, True, [(600, 200), (650, 200), (650, 400), (600, 400)], 3)
-        pygame.draw.lines(screen, lightgrey, True, [(600, 400), (650, 400), (650, 600), (600, 600)], 3)
-        pygame.draw.circle(screen, black, [625, 145], 20, 3)
-        pygame.draw.circle(screen, black, [625, 60], 20, 3)
-        screen.blit(text1, (610, 225))
-        screen.blit(text2, (610, 262))
-        screen.blit(text3, (610, 299))
-        screen.blit(text4, (609, 336))
-        screen.blit(text5, (610, 3))
-        screen.blit(text6, (610, 85))
-        pygame.display.update()
-
-
+while True:
     # 主程序
     size = 3
-    n = 0        # 判断游戏是否结束的临时变量
+    n = 0        # 判断游戏是否结束的全局变量
     board = []
     white = [255, 255, 255]
     black = [0, 0, 0]
@@ -329,10 +352,6 @@ while True:
                 # 鼠标的y坐标
                 y = event.pos[1]
 
-                # # 点击对局记录
-                # if 600 <= mouse[0] <= 650 and 0 <= mouse[1] <= 200 and event.button == 1:
-                #     pass  # 打开本地保存有对局记录的txt文本
-
                 # 点击重新开始按钮
                 if 600 <= mouse[0] <= 650 and 200 <= mouse[1] <= 400 and event.button == 1:
                     n = 1
@@ -345,121 +364,18 @@ while True:
                     screen.blit(text8, (150, 250))
                 pygame.display.update()
 
+                # 通过鼠标坐标和其他条件来判断下(棋)子
                 if n == 0:
-                    if (1 <= x <= 199) and (1 <= y <= 199) and board[0][0] == -1:   # 第一格
+                    if judge_board(mouse):
                         if event.button == 1 and judge_sequence() == 1:
-                            paint_tick_one()
-                            board[0][0] = 1
+                            paint_circle(mouse)
+                            judge_board(mouse, 1)
                             pygame.display.update()
                             play_o.update()
                             play_x.update()
                         elif event.button == 3 and judge_sequence() == 2:
-                            paint_fork_one()
-                            board[0][0] = 0
-                            pygame.display.update()
-                            play_o.update()
-                            play_x.update()
-                    elif (201 <= x <= 399) and (1 <= y <= 199) and board[0][1] == -1:   # 第二格
-                        if event.button == 1 and judge_sequence() == 1:
-                            paint_tick_two()
-                            board[0][1] = 1
-                            pygame.display.update()
-                            play_o.update()
-                            play_x.update()
-                        elif event.button == 3 and judge_sequence() == 2:
-                            paint_fork_two()
-                            board[0][1] = 0
-                            pygame.display.update()
-                            play_o.update()
-                            play_x.update()
-                    elif (401 <= x <= 599) and (1 <= y <= 199) and board[0][2] == -1:   # 第三格
-                        if event.button == 1 and judge_sequence() == 1:
-                            paint_tick_three()
-                            board[0][2] = 1
-                            pygame.display.update()
-                            play_o.update()
-                            play_x.update()
-                        elif event.button == 3 and judge_sequence() == 2:
-                            paint_fork_three()
-                            board[0][2] = 0
-                            pygame.display.update()
-                            play_o.update()
-                            play_x.update()
-                    elif (1 <= x <= 199) and (201 <= y <= 399) and board[1][0] == -1:   # 第四格
-                        if event.button == 1 and judge_sequence() == 1:
-                            paint_tick_four()
-                            board[1][0] = 1
-                            pygame.display.update()
-                            play_o.update()
-                            play_x.update()
-                        elif event.button == 3 and judge_sequence() == 2:
-                            paint_fork_four()
-                            board[1][0] = 0
-                            pygame.display.update()
-                            play_o.update()
-                            play_x.update()
-                    elif (201 <= x <= 399) and (201 <= y <= 399) and board[1][1] == -1:   # 第五格
-                        if event.button == 1 and judge_sequence() == 1:
-                            paint_tick_five()
-                            board[1][1] = 1
-                            pygame.display.update()
-                            play_o.update()
-                            play_x.update()
-                        elif event.button == 3 and judge_sequence() == 2:
-                            paint_fork_five()
-                            board[1][1] = 0
-                            pygame.display.update()
-                            play_o.update()
-                            play_x.update()
-                    elif (401 <= x <= 599) and (201 <= y <= 399) and board[1][2] == -1:   # 第六格
-                        if event.button == 1 and judge_sequence() == 1:
-                            paint_tick_six()
-                            board[1][2] = 1
-                            pygame.display.update()
-                            play_o.update()
-                            play_x.update()
-                        elif event.button == 3 and judge_sequence() == 2:
-                            paint_fork_six()
-                            board[1][2] = 0
-                            pygame.display.update()
-                            play_o.update()
-                            play_x.update()
-                    elif (1 <= x <= 199) and (401 <= y <= 599) and board[2][0] == -1:   # 第七格
-                        if event.button == 1 and judge_sequence() == 1:
-                            paint_tick_seven()
-                            board[2][0] = 1
-                            pygame.display.update()
-                            play_o.update()
-                            play_x.update()
-                        elif event.button == 3 and judge_sequence() == 2:
-                            paint_fork_seven()
-                            board[2][0] = 0
-                            pygame.display.update()
-                            play_o.update()
-                            play_x.update()
-                    elif (201 <= x <= 399) and (401 <= y <= 599) and board[2][1] == -1:   # 第八格
-                        if event.button == 1 and judge_sequence() == 1:
-                            paint_tick_eight()
-                            board[2][1] = 1
-                            pygame.display.update()
-                            play_o.update()
-                            play_x.update()
-                        elif event.button == 3 and judge_sequence() == 2:
-                            paint_fork_eight()
-                            board[2][1] = 0
-                            pygame.display.update()
-                            play_o.update()
-                            play_x.update()
-                    elif (401 <= x <= 599) and (401 <= y <= 599) and board[2][2] == -1:   # 第九格
-                        if event.button == 1 and judge_sequence() == 1:
-                            paint_tick_nine()
-                            board[2][2] = 1     # 写入数组
-                            pygame.display.update()
-                            play_o.update()
-                            play_x.update()
-                        elif event.button == 3 and judge_sequence() == 2:
-                            paint_fork_nine()
-                            board[2][2] = 0
+                            paint_fork(mouse)
+                            judge_board(mouse, 0)
                             pygame.display.update()
                             play_o.update()
                             play_x.update()
